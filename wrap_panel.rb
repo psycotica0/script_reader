@@ -14,16 +14,47 @@ class Line
 		margin = 5
 		pad << "%03d| " % line_num
 		@sents.each_with_index do |s, idx|
-			pad << " " if idx > 0 and pad.curx < width
-			s.layout(pad, width, margin)
+			space = (idx > 0 and pad.curx < width) ? InterSentenceSpace.new : nil
+			s.layout(pad, width, margin, space)
 		end
 		pad.clrtoeol
 		pad.setpos(pad.cury + 1, 0)
 	end
 end
 
+class InterSentenceSpace
+	def layout(pad)
+		# Capture for redraws
+		@pad = pad
+		@x, @y = pad.curx, pad.cury
+		draw
+	end
+
+	def draw
+		@pad.attron(@active ? Curses::A_STANDOUT : 0) do
+			@pad << " "
+		end
+	end
+
+	def redraw
+		@pad.setpos(@y, @x)
+		draw
+	end
+
+	def activate
+		@active = true
+	end
+
+	def deactivate
+		@active = false
+	end
+end
+
 class Sentence
-	def layout(pad, width, margin)
+	def layout(pad, width, margin, pre_space)
+		@pre_space = pre_space
+		@pre_space.layout(pad) if @pre_space
+
 		@spans.each do |s|
 			s.layout(pad, width, margin)
 		end

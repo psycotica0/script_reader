@@ -50,23 +50,57 @@ end
 class Sentence
 	def selection
 		cur = Cursor.new(self)
-		Selection.new(cur, cur)
+		sel = Selection.new(cur, cur)
+
+		if @pre_space
+			sc = Cursor.new(@pre_space, true)
+			sel = Selection.new(sc, sc).join!(sel)
+		end
+
+		sel
 	end
 end
 
 class Cursor
-	attr_accessor :item, :next, :prev
+	attr_accessor :item, :true_next, :true_prev
 
-	def initialize(item)
+	def initialize(item, skip = false)
 		@item = item
+		@skip = skip
+	end
+
+	def skip?
+		@skip
+	end
+
+	def next=(v)
+		@true_next = v
+	end
+
+	def prev=(v)
+		@true_prev = v
+	end
+
+	def next
+		return nil unless @true_next
+		return @true_next unless @true_next.skip?
+
+		@true_next.next
+	end
+
+	def prev
+		return nil unless @true_prev
+		return @true_prev unless @true_prev.skip?
+
+		@true_prev.prev
 	end
 
 	def has_next?
-		!!@next
+		!!@true_next
 	end
 
 	def has_prev?
-		!!@prev
+		!!@true_prev
 	end
 
 	# This is inclusive of the final
@@ -77,7 +111,7 @@ class Cursor
 				i << cur.item
 				break if cur == final
 				break unless cur.has_next?
-				cur = cur.next
+				cur = cur.true_next
 			end
 		end
 
@@ -139,6 +173,7 @@ class Selection
 		@final.next = second.start
 		second.start.prev = @final
 		@final = second.final
+		self
 	end
 
 	def activate
