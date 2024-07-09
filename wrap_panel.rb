@@ -77,6 +77,14 @@ class Sentence
 			s.deactivate
 		end
 	end
+
+	def top
+		@spans.first.top
+	end
+
+	def bottom
+		@spans.last.bottom
+	end
 end
 
 class Span
@@ -89,6 +97,7 @@ class Span
 		@x, @y = pad.curx, pad.cury
 		@pad, @width, @margin = pad, width, margin
 		draw
+		@y2 = pad.cury
 	end
 
 	def draw
@@ -127,6 +136,14 @@ class Span
 	def deactivate
 		@active = false
 	end
+
+	def top
+		@y
+	end
+
+	def bottom
+		@y2
+	end
 end
 
 class Emph
@@ -156,7 +173,7 @@ class BlankLine
 end
 
 class WrapPanel
-	attr_accessor :default_style, :active_style
+	attr_accessor :default_style, :active_style, :scroll_margin
 	attr_reader :pad, :height
 
 	def initialize(height, width, top, left, p)
@@ -181,6 +198,28 @@ class WrapPanel
 		@scroll_pos += n
 
 		@scroll_pos = 0 if @scroll_pos < 0
+	end
+
+	def scroll_to_fit(selection)
+		scroll_to_range(selection.top, selection.bottom)
+	end
+
+	def scroll_to_range(top, bottom)
+		# Shouldn't happen in real usage
+		# but if our selection is bigger than our window, don't scroll
+		return if bottom - top > (@height - @scroll_margin * 2)
+
+		etop = @scroll_pos + @scroll_margin
+		ebottom = @scroll_pos + @height - @scroll_margin - 1
+
+		# If it's already on the screen the way we want, then do nothing
+		return if top >= etop && bottom <= ebottom
+
+		if top < etop
+			@scroll_pos = [top - @scroll_margin, 0].max
+		elsif bottom > ebottom
+			@scroll_pos = bottom + @scroll_margin - @height + 1
+		end
 	end
 end
 

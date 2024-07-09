@@ -193,4 +193,12 @@ class Selection
 	def to_start!
 		@final = @start
 	end
+
+	def top
+		@start.item.top
+	end
+
+	def bottom
+		@final.item.bottom
+	end
 end

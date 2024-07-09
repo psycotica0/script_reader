@@ -45,6 +45,7 @@ begin
 	wp_width = w_width - wp_margin_x * 2
 	wp_height = w_height - wp_margin_y * 2
 	wp = WrapPanel.new(wp_height, wp_width, w_margin_y + wp_margin_y, w_margin_x + wp_margin_x, p)
+	wp.scroll_margin = 2
 	wp.layout
 
 	refresh
@@ -62,15 +63,19 @@ begin
 			break
 		when "j"
 			selection.move_down
+			wp.scroll_to_fit(selection)
 			wp.refresh
 		when "k"
 			selection.move_up
+			wp.scroll_to_fit(selection)
 			wp.refresh
 		when "J"
 			selection.spread_down
+			wp.scroll_to_fit(selection)
 			wp.refresh
 		when "K"
 			selection.spread_up
+			wp.scroll_to_fit(selection)
 			wp.refresh
 		when 5 # Ctrl-E
 			wp.scroll(1)
