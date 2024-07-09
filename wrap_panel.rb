@@ -84,7 +84,7 @@ end
 
 class WrapPanel
 	attr_accessor :default_style, :active_style
-	attr_reader :pad
+	attr_reader :pad, :height
 
 	def initialize(height, width, top, left, p)
 		@height = height

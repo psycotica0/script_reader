@@ -54,11 +54,17 @@ begin
 		case getch
 		when "q"
 			break
-		when "j"
+		when "j", 5 # Ctrl-E
 			wp.scroll(1)
 			wp.refresh
-		when "k"
+		when "k", 25 # Ctrl-Y
 			wp.scroll(-1)
+			wp.refresh
+		when 4 # Ctrl-D
+			wp.scroll(wp.height / 2)
+			wp.refresh
+		when 21 # Ctrl-U
+			wp.scroll(-wp.height / 2)
 			wp.refresh
 		end
 	end
