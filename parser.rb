@@ -1,3 +1,16 @@
+class ID
+	attr_reader :line_num, :sentence_num
+
+	def initialize(l, s)
+		@line_num = l
+		@sentence_num = s
+	end
+
+	def to_s
+		"%03d.%02d" % [@line_num, @sentence_num]
+	end
+end
+
 class Parser
 	attr_reader :chunks
 
@@ -42,7 +55,7 @@ class Line
 	def initialize(idx, str)
 		@idx = idx
 		@sents = str.split(/(?<!\.\.)(?<=[\.!?])(?=\s|$)/).each_with_index.map do |sent, sub_idx|
-			Sentence.new(sub_idx, sent.strip)
+			Sentence.new(ID.new(idx, sub_idx), sent.strip)
 		end
 	end
 
@@ -56,8 +69,10 @@ class Line
 end
 
 class Sentence
-	def initialize(idx, str)
-		@idx = idx
+	attr_reader :id
+
+	def initialize(id, str)
+		@id = id
 		# Split on stuff surrounded in _ or * (separated by spaces), and leave the rest
 		@spans = str.scan(/(?<=\W)_[^_]+_(?=\W)|(?<=\W)\*[^\*]+\*(?=\W)|.+?(?:\W(?=_|\*)|$)/).map do |s|
 			if s.start_with?("*")

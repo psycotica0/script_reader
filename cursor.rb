@@ -1,0 +1,161 @@
+require_relative 'parser'
+
+class Parser
+	def selection
+		sel = nil
+		@chunks.each do |chunk|
+			s = chunk.selection
+			next unless s
+			
+			if sel
+				sel.join!(s)
+			else
+				sel = s
+			end
+		end
+
+		sel
+	end
+end
+
+class CodeBlock
+	def selection
+		# I don't want to select code blocks, so just skip them
+		nil
+	end
+end
+
+class BlankLine
+	def selection
+		# I don't want to select blank lines, so just skip them
+		nil
+	end
+end
+
+class Line
+	def selection
+		sel = nil
+		@sents.each do |sent|
+			if sel
+				sel.join!(sent.selection)
+			else
+				sel = sent.selection
+			end
+		end
+
+		sel
+	end
+end
+
+class Sentence
+	def selection
+		cur = Cursor.new(self)
+		Selection.new(cur, cur)
+	end
+end
+
+class Cursor
+	attr_accessor :item, :next, :prev
+
+	def initialize(item)
+		@item = item
+	end
+
+	def has_next?
+		!!@next
+	end
+
+	def has_prev?
+		!!@prev
+	end
+
+	# This is inclusive of the final
+	def until(final, &block)
+		cur = self
+		e = Enumerator.new do |i|
+			loop do
+				i << cur.item
+				break if cur == final
+				break unless cur.has_next?
+				cur = cur.next
+			end
+		end
+
+		if block
+			e.each(&block)
+		else
+			e
+		end
+	end
+end
+
+class Selection
+	attr_reader :start, :final
+
+	def initialize(start, final)
+		@start = start
+		@final = final
+	end
+
+	def move_down
+		if final.has_next?
+			deactivate
+			@start = final.next
+			@final = start
+			activate
+		end
+	end
+
+	def move_up
+		if start.has_prev?
+			deactivate
+			@start = start.prev
+			@final = start
+			activate
+		end
+	end
+
+	def spread_down
+		if final.has_next?
+			@final.until(final.next) do |s|
+				s.activate
+				s.redraw
+			end
+			@final = @final.next
+		end
+	end
+
+	def spread_up
+		if start.has_prev?
+			@start.prev.until(@start) do |s|
+				s.activate
+				s.redraw
+			end
+			@start = @start.prev
+		end
+	end
+
+	def join!(second)
+		@final.next = second.start
+		second.start.prev = @final
+		@final = second.final
+	end
+
+	def activate
+		@start.until(@final) do |s|
+			s.activate
+			s.redraw
+		end
+	end
+
+	def deactivate
+		@start.until(@final) do |s|
+			s.deactivate
+			s.redraw
+		end
+	end
+
+	def to_start!
+		@final = @start
+	end
+end

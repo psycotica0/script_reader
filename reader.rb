@@ -1,6 +1,7 @@
 require 'curses'
 require_relative 'parser'
 require_relative 'wrap_panel'
+require_relative 'cursor'
 
 if ARGV.length != 1
 	puts "You have to give me a file"
@@ -50,14 +51,31 @@ begin
 	win.refresh
 	wp.refresh
 
+	selection = p.selection
+	selection.to_start!
+	selection.activate
+	wp.refresh
+
 	loop do
 		case getch
 		when "q"
 			break
-		when "j", 5 # Ctrl-E
+		when "j"
+			selection.move_down
+			wp.refresh
+		when "k"
+			selection.move_up
+			wp.refresh
+		when "J"
+			selection.spread_down
+			wp.refresh
+		when "K"
+			selection.spread_up
+			wp.refresh
+		when 5 # Ctrl-E
 			wp.scroll(1)
 			wp.refresh
-		when "k", 25 # Ctrl-Y
+		when 25 # Ctrl-Y
 			wp.scroll(-1)
 			wp.refresh
 		when 4 # Ctrl-D

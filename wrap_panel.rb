@@ -28,6 +28,24 @@ class Sentence
 			s.layout(pad, width, margin)
 		end
 	end
+
+	def redraw
+		@spans.each do |s|
+			s.redraw
+		end
+	end
+
+	def activate
+		@spans.each do |s|
+			s.activate
+		end
+	end
+
+	def deactivate
+		@spans.each do |s|
+			s.deactivate
+		end
+	end
 end
 
 class Span
@@ -36,23 +54,47 @@ class Span
 	end
 
 	def layout(pad, width, margin)
+		# Save these for redraw later
+		@x, @y = pad.curx, pad.cury
+		@pad, @width, @margin = pad, width, margin
+		draw
+	end
+
+	def draw
 		to_s.scan(/.+?(?=\s|$)/).each do |word|
-			if pad.curx + word.length > width
-				pad.setpos(pad.cury + 1, margin)
+			if @pad.curx + word.length > @width
+				@pad.clrtoeol
+				@pad.setpos(@pad.cury + 1, @margin)
 				word.lstrip!
-				pad.clrtoeol
 			end
 
 			# The last row lines up perfectly with the end and wrapped
-			if pad.curx < margin
-				pad.setpos(pad.cury, margin)
+			if @pad.curx < @margin
+				@pad.setpos(@pad.cury, @margin)
 				word.lstrip!
 			end
 
-			pad.attron(attrs) do
-				pad << word
+			@pad.attron(attrs | active_attr) do
+				@pad << word
 			end
 		end
+	end
+
+	def redraw
+		@pad.setpos(@y, @x)
+		draw
+	end
+
+	def active_attr
+		@active ? Curses::A_STANDOUT : 0
+	end
+
+	def activate
+		@active = true
+	end
+
+	def deactivate
+		@active = false
 	end
 end
 
