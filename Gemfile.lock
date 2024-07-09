@@ -1,0 +1,15 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    awesome_print (1.9.2)
+    curses (1.4.6)
+
+PLATFORMS
+  x86_64-linux-gnu
+
+DEPENDENCIES
+  awesome_print
+  curses
+
+BUNDLED WITH
+   2.4.20
