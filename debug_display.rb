@@ -9,6 +9,10 @@ class DebugDisplay
 	def dump(str)
 		return unless @win
 
+		if Array === str
+			str = str.inspect
+		end
+
 		@win.setpos(0,0)
 		@win.attron(Stylesheet.debug) do
 			@win << str.to_s
