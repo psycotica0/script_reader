@@ -24,4 +24,22 @@ class DebugDisplay
 	def self.dump(str)
 		instance.dump(str)
 	end
+
+	def push(str)
+		@crap ||= []
+		@crap << str
+	end
+
+	def self.push(str)
+		instance.push(str)
+	end
+
+	def flush
+		dump(@crap)
+		@crap = []
+	end
+
+	def self.flush
+		instance.flush
+	end
 end
