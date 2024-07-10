@@ -121,6 +121,10 @@ class Cursor
 			e
 		end
 	end
+
+	def id
+		item.id
+	end
 end
 
 class Selection
@@ -200,5 +204,17 @@ class Selection
 
 	def bottom
 		@final.item.bottom
+	end
+
+	def contains?(other)
+		other.start.id.between?(start.id, final.id) && other.final.id.between?(start.id, final.id)
+	end
+
+	def ===(other)
+		contains?(other)
+	end
+
+	def ==(other)
+		start.id == other.start.id && final.id == other.final.id
 	end
 end

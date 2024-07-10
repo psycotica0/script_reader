@@ -1,4 +1,6 @@
 class ID
+	include Comparable
+
 	attr_reader :line_num, :sentence_num
 
 	def initialize(l, s)
@@ -8,6 +10,16 @@ class ID
 
 	def to_s
 		"%03d.%02d" % [@line_num, @sentence_num]
+	end
+
+	def <=>(other)
+		if line_num < other.line_num
+			-1
+		elsif line_num > other.line_num
+			1
+		else
+			sentence_num <=> other.sentence_num
+		end
 	end
 end
 

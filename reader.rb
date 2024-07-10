@@ -4,6 +4,8 @@ require_relative 'wrap_panel'
 require_relative 'cursor'
 require_relative 'sync_form'
 require_relative 'stylesheet'
+require_relative 'take_manager'
+require_relative 'take_display'
 require_relative 'debug_display'
 
 if ARGV.length != 1
@@ -54,6 +56,17 @@ begin
 	debug_display = DebugDisplay.instance
 	debug_display.win = stdscr.derwin(1, stdscr.maxx, stdscr.maxy - 1, 0)
 
+	take_manager = TakeManager.new
+
+	sd_width = "00:00:00".length
+
+	tw_width = " 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15".length
+	take_display = TakeDisplay.new(
+		take_manager,
+		stdscr.derwin(1, tw_width, 0, stdscr.maxx - sd_width - 1 - tw_width)
+	)
+	take_display.selection = selection
+
 	loop do
 		case getch
 		when "q"
@@ -61,19 +74,35 @@ begin
 		when "j"
 			selection.move_down
 			wp.scroll_to_fit(selection)
-			wp.refresh
+			wp.noutrefresh
+			take_manager.cancel_recording
+			take_display.selection = selection
+			take_display.noutrefresh
+			doupdate
 		when "k"
 			selection.move_up
 			wp.scroll_to_fit(selection)
-			wp.refresh
+			wp.noutrefresh
+			take_manager.cancel_recording
+			take_display.selection = selection
+			take_display.noutrefresh
+			doupdate
 		when "J"
 			selection.spread_down
 			wp.scroll_to_fit(selection)
-			wp.refresh
+			wp.noutrefresh
+			take_manager.cancel_recording
+			take_display.selection = selection
+			take_display.noutrefresh
+			doupdate
 		when "K"
 			selection.spread_up
 			wp.scroll_to_fit(selection)
-			wp.refresh
+			wp.noutrefresh
+			take_manager.cancel_recording
+			take_display.selection = selection
+			take_display.noutrefresh
+			doupdate
 		when 5 # Ctrl-E
 			wp.scroll(1)
 			wp.refresh
@@ -95,6 +124,12 @@ begin
 			win.noutrefresh
 			wp.noutrefresh
 			doupdate
+		when "i"
+			take_manager.start_recording(selection)
+			take_display.refresh
+		when "o"
+			take_manager.stop_recording
+			take_display.refresh
 		end
 	end
 ensure
