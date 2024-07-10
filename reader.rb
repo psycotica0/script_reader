@@ -7,6 +7,7 @@ require_relative 'stylesheet'
 require_relative 'take_manager'
 require_relative 'take_display'
 require_relative 'debug_display'
+require_relative 'sync_display'
 
 if ARGV.length != 1
 	puts "You have to give me a file"
@@ -59,6 +60,7 @@ begin
 	take_manager = TakeManager.new
 
 	sd_width = "00:00:00".length
+	sync_display = SyncDisplay.new(stdscr.derwin(1, sd_width, 0, stdscr.maxx - sd_width - 1))
 
 	tw_width = " 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15".length
 	take_display = TakeDisplay.new(
@@ -66,8 +68,11 @@ begin
 		stdscr.derwin(1, tw_width, 0, stdscr.maxx - sd_width - 1 - tw_width)
 	)
 	take_display.selection = selection
+	self.timeout = 500
 
 	loop do
+		sync_display.refresh
+
 		case getch
 		when "q"
 			break
@@ -118,6 +123,8 @@ begin
 		when "r"
 			form = SyncForm.new(stdscr)
 			result = form.run
+
+			sync_display.sync = Sync.new(result) if result
 
 			stdscr.noutrefresh
 			win.box

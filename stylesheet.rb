@@ -7,7 +7,7 @@ class Stylesheet
 	class << self
 		include Curses
 
-		attr_accessor :window, :script_text, :active_script_text, :sync_form_label, :sync_form_input, :debug
+		attr_accessor :window, :script_text, :active_script_text, :sync_form_label, :sync_form_input, :debug, :sync_display
 		attr_accessor :take, :take_poor, :take_okay, :take_good, :take_trsh, :take_rec, :take_subset, :take_active
 
 		def init
@@ -24,6 +24,8 @@ class Stylesheet
 
 			cdebug = col(COLOR_WHITE, COLOR_RED)
 			@debug = color_pair(cdebug)
+
+			@sync_display = color_pair(col(COLOR_WHITE, COLOR_BLACK))
 
 			init_takes
 		end

@@ -27,7 +27,7 @@ class SyncForm
 				when 'q', 27 # Esc
 					return nil
 				when 10 # Enter
-					return @d
+					return @duration
 				when '0'..'9'
 					@duration.shiftl!(ch.to_i)
 				when KEY_BACKSPACE, KEY_DC, 127
