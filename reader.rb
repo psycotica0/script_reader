@@ -129,6 +129,25 @@ begin
 			take_display.refresh
 		when "o"
 			take_manager.stop_recording
+			take_display.selection = selection
+			take_display.refresh
+		when "h"
+			take_display.pick_left
+			take_display.refresh
+		when "l"
+			take_display.pick_right
+			take_display.refresh
+		when "7"
+			take_display.set_status(Take::POOR)
+			take_display.refresh
+		when "8"
+			take_display.set_status(Take::OKAY)
+			take_display.refresh
+		when "9"
+			take_display.set_status(Take::GOOD)
+			take_display.refresh
+		when "0"
+			take_display.set_status(Take::TRSH)
 			take_display.refresh
 		end
 	end

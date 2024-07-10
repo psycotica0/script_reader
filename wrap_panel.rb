@@ -149,8 +149,7 @@ end
 
 class Emph
 	def attrs
-		# Italic: I stole this from the source
-		-2147483648
+		Stylesheet::A_ITALIC
 	end
 end
 

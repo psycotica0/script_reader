@@ -6,7 +6,8 @@ class Take
 	GOOD = 3
 	TRSH = 4
 
-	attr_reader :selection, :start_time, :end_time, :status
+	attr_reader :selection, :start_time, :end_time
+	attr_accessor :status
 
 	def initialize(selection, start_time, end_time)
 		@selection = selection

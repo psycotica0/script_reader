@@ -1,10 +1,14 @@
 require 'curses'
 
 class Stylesheet
+	# Italic: I stole this from the source
+	A_ITALIC = -2147483648
+
 	class << self
 		include Curses
 
 		attr_accessor :window, :script_text, :active_script_text, :sync_form_label, :sync_form_input, :debug
+		attr_accessor :take, :take_poor, :take_okay, :take_good, :take_trsh, :take_rec, :take_subset, :take_active
 
 		def init
 			cwin = col(COLOR_WHITE, COLOR_BLUE)
@@ -20,6 +24,32 @@ class Stylesheet
 
 			cdebug = col(COLOR_WHITE, COLOR_RED)
 			@debug = color_pair(cdebug)
+
+			init_takes
+		end
+
+		def init_takes
+			ctake = col(COLOR_WHITE, COLOR_BLACK)
+			@take = color_pair(ctake)
+
+			cp = col(COLOR_RED, COLOR_BLACK)
+			@take_poor = color_pair(cp)
+
+			co = col(COLOR_YELLOW, COLOR_BLACK)
+			@take_okay = color_pair(co)
+
+			cg = col(COLOR_GREEN, COLOR_BLACK)
+			@take_good = color_pair(cg)
+
+			ct = col(COLOR_WHITE, COLOR_BLACK)
+			@take_trsh = color_pair(ct) | A_DIM
+
+			cr = col(COLOR_RED, COLOR_WHITE)
+			@take_rec = color_pair(cr) | A_BLINK
+
+			@take_subset = A_UNDERLINE
+
+			@take_active = A_STANDOUT
 		end
 
 		def col(fore, back)
