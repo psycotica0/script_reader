@@ -190,6 +190,10 @@ class WrapPanel
 		@parse.layout(@pad, @width)
 	end
 
+	def noutrefresh
+		@pad.noutrefresh(@scroll_pos, 0, @top, @left, @top + @height - 1, @left + @width)
+	end
+
 	def refresh
 		@pad.refresh(@scroll_pos, 0, @top, @left, @top + @height - 1, @left + @width)
 	end

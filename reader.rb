@@ -2,6 +2,7 @@ require 'curses'
 require_relative 'parser'
 require_relative 'wrap_panel'
 require_relative 'cursor'
+require_relative 'sync_form'
 
 if ARGV.length != 1
 	puts "You have to give me a file"
@@ -39,6 +40,7 @@ begin
 	win = Window.new(w_height, w_width, w_margin_y, w_margin_x)
 	win.box
 	win.bkgd(color_pair(C_WIN))
+	win.keypad(true)
 
 	wp_margin_x = 1
 	wp_margin_y = 1
@@ -89,6 +91,15 @@ begin
 		when 21 # Ctrl-U
 			wp.scroll(-wp.height / 2)
 			wp.refresh
+		when "r"
+			form = SyncForm.new(stdscr)
+			result = form.run
+
+			stdscr.noutrefresh
+			win.box
+			win.noutrefresh
+			wp.noutrefresh
+			doupdate
 		end
 	end
 ensure
