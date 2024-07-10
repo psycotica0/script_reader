@@ -1,5 +1,6 @@
 require 'curses'
 require_relative 'sync'
+require_relative 'stylesheet'
 
 class SyncForm
 	include Curses
@@ -13,7 +14,7 @@ class SyncForm
 	def run
 		@win.refresh
 		@win.setpos(1, 1)
-		@win.attron(Curses.color_pair(1)) do
+		@win.attron(Stylesheet.sync_form_label) do
 			@win << @label
 		end
 		@win.refresh
@@ -42,7 +43,9 @@ class SyncForm
 	def draw
 		@r ||= 1
 		@win.setpos(0, @label.length + 1)
-		@win << @duration.to_s
+		@win.attron(Stylesheet.sync_form_input) do
+			@win << @duration.to_s
+		end
 		@win.refresh
 		@r += 1
 	end

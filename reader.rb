@@ -3,6 +3,7 @@ require_relative 'parser'
 require_relative 'wrap_panel'
 require_relative 'cursor'
 require_relative 'sync_form'
+require_relative 'stylesheet'
 
 if ARGV.length != 1
 	puts "You have to give me a file"
@@ -11,20 +12,10 @@ end
 
 include Curses
 
-# I stole this from the source
-A_ITALIC=-2147483648
-
 init_screen
 start_color
 
-C_WIN = 1
-init_pair(C_WIN, COLOR_WHITE, COLOR_BLUE)
-
-C_PANEL = 2
-init_pair(C_PANEL, COLOR_WHITE, COLOR_BLACK)
-
-C_ACTIVE = 3
-init_pair(C_ACTIVE, COLOR_RED, COLOR_BLACK)
+Stylesheet.init
 
 curs_set(0)
 cbreak
@@ -39,7 +30,7 @@ begin
 
 	win = Window.new(w_height, w_width, w_margin_y, w_margin_x)
 	win.box
-	win.bkgd(color_pair(C_WIN))
+	win.bkgd(Stylesheet.window)
 	win.keypad(true)
 
 	wp_margin_x = 1

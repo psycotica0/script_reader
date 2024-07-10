@@ -1,5 +1,6 @@
 require 'curses'
 require_relative 'parser'
+require_relative 'stylesheet'
 
 class Parser
 	def layout(pad, width)
@@ -31,7 +32,7 @@ class InterSentenceSpace
 	end
 
 	def draw
-		@pad.attron(@active ? Curses::A_STANDOUT : 0) do
+		@pad.attron(@active ? Stylesheet.active_script_text : Stylesheet.script_text) do
 			@pad << " "
 		end
 	end
@@ -126,7 +127,7 @@ class Span
 	end
 
 	def active_attr
-		@active ? Curses::A_STANDOUT : 0
+		@active ? Stylesheet.active_script_text : Stylesheet.script_text
 	end
 
 	def activate
