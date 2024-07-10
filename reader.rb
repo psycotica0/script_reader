@@ -4,6 +4,7 @@ require_relative 'wrap_panel'
 require_relative 'cursor'
 require_relative 'sync_form'
 require_relative 'stylesheet'
+require_relative 'debug_display'
 
 if ARGV.length != 1
 	puts "You have to give me a file"
@@ -49,6 +50,9 @@ begin
 	selection.to_start!
 	selection.activate
 	wp.refresh
+
+	debug_display = DebugDisplay.instance
+	debug_display.win = stdscr.derwin(1, stdscr.maxx, stdscr.maxy - 1, 0)
 
 	loop do
 		case getch
