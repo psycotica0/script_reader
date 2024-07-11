@@ -23,6 +23,6 @@ class SyncDisplay
 
 	def refresh
 		noutrefresh
-		doupdate
+		Curses.doupdate
 	end
 end

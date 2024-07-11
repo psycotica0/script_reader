@@ -64,7 +64,7 @@ class TakeDisplay
 
 	def refresh
 		noutrefresh
-		doupdate
+		Curses.doupdate
 	end
 
 	def pick_left
