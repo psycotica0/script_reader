@@ -29,48 +29,40 @@ class Application
 
 		begin
 			p = Parser.new(File.read(ARGV[0]))
-			w_margin_x = 2
-			w_margin_y = 1
-			w_width = cols - w_margin_x * 2
-			w_height = lines - w_margin_y * 2
 
-			@win = Window.new(w_height, w_width, w_margin_y, w_margin_x)
-			@win.box
+			@win = new_win
 			@win.bkgd(Stylesheet.window)
 			@win.keypad(true)
 
-			wp_margin_x = 1
-			wp_margin_y = 1
-			wp_width = w_width - wp_margin_x * 2
-			wp_height = w_height - wp_margin_y * 2
-			@wp = WrapPanel.new(wp_height, wp_width, w_margin_y + wp_margin_y, w_margin_x + wp_margin_x, p)
+			@wp = WrapPanel.new(1, 1, 0, 0, p)
 			@wp.scroll_margin = 2
-			@wp.layout
 
-			refresh
-			@win.refresh
-			@wp.refresh
+			@debug_display = DebugDisplay.instance
+			@debug_display.win = new_win
+
+			@take_manager = TakeManager.new
+
+			@sync_display = SyncDisplay.new(new_win)
+			@sync_display.sync = Sync.new(0)
+
+			@take_display = TakeDisplay.new(@take_manager, new_win)
+
+			self.timeout = 500
+
+			layout
+			full_refresh
 
 			@selection = p.selection
 			@selection.to_start!
 			@selection.activate
-			@wp.refresh
 
-			@debug_display = DebugDisplay.instance
-			@debug_display.win = stdscr.derwin(1, stdscr.maxx, stdscr.maxy - 1, 0)
-
-			@take_manager = TakeManager.new
-
-			sd_width = "00:00:00".length
-			@sync_display = SyncDisplay.new(stdscr.derwin(1, sd_width, 0, stdscr.maxx - sd_width - 1))
-
-			tw_width = " 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15".length
-			@take_display = TakeDisplay.new(
-				@take_manager,
-				stdscr.derwin(1, tw_width, 0, stdscr.maxx - sd_width - 1 - tw_width)
-			)
 			@take_display.selection = @selection
-			self.timeout = 500
+			@take_display.noutrefresh
+
+			@wp.scroll_to_fit(@selection)
+			@wp.noutrefresh
+
+			doupdate
 
 			loop do
 				@sync_display.refresh
@@ -123,16 +115,12 @@ class Application
 					@wp.scroll(-@wp.height / 2)
 					@wp.refresh
 				when "r"
-					form = SyncForm.new(stdscr)
+					form = SyncForm.new(new_win)
 					result = form.run
 
 					@sync_display.sync = Sync.new(result) if result
 
-					stdscr.noutrefresh
-					@win.box
-					@win.noutrefresh
-					@wp.noutrefresh
-					doupdate
+					full_refresh
 				when "i"
 					@take_manager.start_recording(@selection)
 					@take_display.refresh
@@ -158,11 +146,58 @@ class Application
 				when "0"
 					@take_display.set_status(Take::TRSH)
 					@take_display.refresh
+				when KEY_RESIZE, 12 # Ctrl-L
+					layout
+					full_refresh
 				end
 			end
 		ensure
 			close_screen
 		end
+	end
+
+	def layout
+		w_margin_x = 2
+		w_margin_y = 1
+		w_width = cols - w_margin_x * 2
+		w_height = lines - w_margin_y * 2
+
+		@win.move(w_margin_y, w_margin_x)
+		@win.resize(w_height, w_width)
+
+		wp_margin_x = 1
+		wp_margin_y = 1
+		wp_width = w_width - wp_margin_x * 2
+		wp_height = w_height - wp_margin_y * 2
+		@wp.move(w_margin_y + wp_margin_y, w_margin_x + wp_margin_x)
+		@wp.resize(wp_height, wp_width)
+		@wp.scroll_to_fit(@selection) if @selection
+
+		@debug_display.win.move(stdscr.maxy - 1, 0)
+		@debug_display.win.resize(1, stdscr.maxx)
+
+		sd_width = "00:00:00".length
+		@sync_display.move(0, stdscr.maxx - sd_width - 1)
+		@sync_display.resize(1, sd_width)
+
+		tw_width = " 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15".length
+		@take_display.move(0, stdscr.maxx - sd_width - 1 - tw_width)
+		@take_display.resize(1, tw_width)
+	end
+
+	def full_refresh
+		erase
+		stdscr.noutrefresh
+		@win.box
+		@win.noutrefresh
+		@wp.noutrefresh
+		@sync_display.noutrefresh
+		@take_display.noutrefresh
+		doupdate
+	end
+
+	def new_win
+		Window.new(1, 1, 0, 0)
 	end
 end
 

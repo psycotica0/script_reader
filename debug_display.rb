@@ -4,7 +4,7 @@ require_relative 'stylesheet'
 class DebugDisplay
 	include Singleton
 
-	attr_writer :win
+	attr_accessor :win
 
 	def dump(str)
 		return unless @win

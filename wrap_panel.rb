@@ -15,8 +15,12 @@ class Line
 		margin = 5
 		pad << "%03d| " % line_num
 		@sents.each_with_index do |s, idx|
-			space = (idx > 0 and pad.curx < width) ? InterSentenceSpace.new : nil
-			s.layout(pad, width, margin, space)
+			if s.pre_space.nil? && idx > 0
+				# We check if there already is one because we don't
+				# want to make a new one on re-layout
+				s.pre_space = InterSentenceSpace.new
+			end
+			s.layout(pad, width, margin)
 		end
 		pad.clrtoeol
 		pad.setpos(pad.cury + 1, 0)
@@ -24,14 +28,16 @@ class Line
 end
 
 class InterSentenceSpace
-	def layout(pad)
+	def layout(pad, margin)
 		# Capture for redraws
-		@pad = pad
+		@pad, @margin = pad, margin
 		@x, @y = pad.curx, pad.cury
 		draw
 	end
 
 	def draw
+		return if @x >= @pad.maxy || @x < @margin
+
 		@pad.attron(@active ? Stylesheet.active_script_text : Stylesheet.script_text) do
 			@pad << " "
 		end
@@ -52,9 +58,10 @@ class InterSentenceSpace
 end
 
 class Sentence
-	def layout(pad, width, margin, pre_space)
-		@pre_space = pre_space
-		@pre_space.layout(pad) if @pre_space
+	attr_accessor :pre_space
+
+	def layout(pad, width, margin)
+		@pre_space.layout(pad, margin) if @pre_space
 
 		@spans.each do |s|
 			s.layout(pad, width, margin)
@@ -173,6 +180,8 @@ class BlankLine
 end
 
 class WrapPanel
+	HEIGHT = 5000
+
 	attr_accessor :default_style, :active_style, :scroll_margin
 	attr_reader :pad, :height
 
@@ -182,7 +191,7 @@ class WrapPanel
 		@left = left
 		@top = top
 		@parse = p
-		@pad = Curses::Pad.new(5000, width)
+		@pad = Curses::Pad.new(HEIGHT, width)
 		@scroll_pos = 0
 	end
 
@@ -224,6 +233,20 @@ class WrapPanel
 		elsif bottom > ebottom
 			@scroll_pos = bottom + @scroll_margin - @height + 1
 		end
+	end
+
+	def move(top, left)
+		@top = top
+		@left = left
+	end
+
+	def resize(height, width)
+		@height = height
+		@width = width
+		@pad.erase
+		@pad.setpos(0,0)
+		@pad.resize(HEIGHT, width)
+		layout
 	end
 end
 

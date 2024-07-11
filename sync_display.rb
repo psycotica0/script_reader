@@ -25,4 +25,12 @@ class SyncDisplay
 		noutrefresh
 		Curses.doupdate
 	end
+
+	def move(y, x)
+		@win.move(y, x)
+	end
+
+	def resize(height, width)
+		@win.resize(height, width)
+	end
 end

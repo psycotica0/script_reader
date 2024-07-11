@@ -84,4 +84,12 @@ class TakeDisplay
 		return if @tm.recording # Can't mark a take until it's done
 		@takes[@cur - 1].status = status
 	end
+
+	def move(y, x)
+		@win.move(y, x)
+	end
+
+	def resize(height, width)
+		@win.resize(height, width)
+	end
 end

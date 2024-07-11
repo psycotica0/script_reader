@@ -8,10 +8,12 @@ class SyncForm
 	def initialize(win)
 		@label = "Sync Time: "
 		@duration = Duration.new(0)
-		@win = win.derwin(1, @label.length + 1 + 10, 0, 0)
+		@win = win
 	end
 
 	def run
+		@win.move(0, 0)
+		@win.resize(1, @label.length + 1 + 10)
 		@win.refresh
 		@win.setpos(1, 1)
 		@win.attron(Stylesheet.sync_form_label) do
