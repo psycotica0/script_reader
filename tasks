@@ -1,0 +1,16 @@
+- "g", "G", "." for first line, last line, most recent take
+- "m" to expand to the selection of a superset take, or to toggle back
+- unrecorded sentence state display
+- take time-range display, maybe "t" to toggle between wall-clock and sync display
+- Ctrl-S to stop / clear the sync
+- actual event log, save and resume
+- export to cue maybe?
+- export to simple "timestamp label" format
+- export to simple takes per sentence format
+- processor that goes sentence by sentence and grabs the best takes and edits
+  the original recording into only the choice cuts. Configurable space between
+- _maybe_ a coverage mode that shows color of best take directly in sentences?
+- ":" to jump to particular ID
+- "V" to select all sentences in a line
+- "/" to search, "n" to search forward, "N" to search backward
+- "?" to show keybinding help

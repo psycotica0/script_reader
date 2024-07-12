@@ -32,6 +32,10 @@ class TakeDisplay
 
 	def selection=(sel)
 		@sel = sel
+		reload!
+	end
+
+	def reload!
 		@takes = @tm.find_takes(@sel)
 		@cur = @takes.length
 	end
@@ -91,5 +95,16 @@ class TakeDisplay
 
 	def resize(height, width)
 		@win.resize(height, width)
+	end
+
+	def current_take
+		return if @takes.empty?
+		return if @tm.recording # Can't mark a take until it's done
+		@takes[@cur - 1]
+	end
+
+	def select_take(take)
+		c = @takes.find_index(take)
+		@cur = c + 1 if c
 	end
 end

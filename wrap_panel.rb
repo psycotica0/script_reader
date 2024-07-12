@@ -55,6 +55,10 @@ class InterSentenceSpace
 	def deactivate
 		@active = false
 	end
+
+	def id
+		ID.new(0, 0)
+	end
 end
 
 class Sentence

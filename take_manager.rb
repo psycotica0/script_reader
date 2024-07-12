@@ -1,4 +1,5 @@
 require_relative 'cursor'
+require_relative 'session'
 
 class Take
 	POOR = 1
@@ -6,10 +7,11 @@ class Take
 	GOOD = 3
 	TRSH = 4
 
-	attr_reader :selection, :start_time, :end_time
+	attr_reader :id, :selection, :start_time, :end_time
 	attr_accessor :status
 
-	def initialize(selection, start_time, end_time)
+	def initialize(id, selection, start_time, end_time)
+		@id = id
 		@selection = selection
 		@start_time = start_time
 		@end_time = end_time
@@ -25,7 +27,7 @@ class RecordingTake
 	end
 
 	def finish
-		Take.new(@selection, @start_time, Time.now)
+		Session::NewTake.new(@start_time, Time.now, @selection.start.id, @selection.final.id)
 	end
 end
 
@@ -34,6 +36,7 @@ class TakeManager
 
 	def initialize
 		@takes = []
+		@take_ids = 1
 	end
 	
 	def start_recording(selection)
@@ -46,11 +49,21 @@ class TakeManager
 
 	def stop_recording
 		return unless @recording
-		@takes << @recording.finish
+		r = @recording.finish
 		@recording = nil
+		r
 	end
 
 	def find_takes(selection)
 		@takes.select { |i| i.selection.contains?(selection) }
+	end
+
+	def new_take(start_time, end_time, selection)
+		@takes << Take.new(@take_ids, selection, start_time, end_time)
+		@take_ids += 1
+	end
+
+	def get_take(take_id)
+		@takes.find { |t| t.id == take_id }
 	end
 end

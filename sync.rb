@@ -53,8 +53,8 @@ class Duration
 end
 
 class Sync
-	def initialize(duration)
-		@start_time = Time.now - duration.to_i
+	def initialize(start_time)
+		@start_time = start_time
 	end
 
 	def to_s

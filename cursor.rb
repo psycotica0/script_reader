@@ -2,19 +2,41 @@ require_relative 'parser'
 
 class Parser
 	def selection
-		sel = nil
+		return @sel if @sel
+
+		@sel = nil
 		@chunks.each do |chunk|
 			s = chunk.selection
 			next unless s
 			
-			if sel
-				sel.join!(s)
+			if @sel
+				@sel.join!(s)
 			else
-				sel = s
+				@sel = s
 			end
 		end
 
-		sel
+		@sel
+	end
+
+	# This returns a new selection that goes between (and including) the two
+	# sentences given
+	def get_selection(start_id, end_id)
+		start = nil
+		final = nil
+		@sel.start.until(@sel.final).each do |s|
+			if s.id.to_s == start_id
+				start = s
+			end
+			# It can be both start and end
+			if s.id.to_s == end_id
+				final = s
+				break
+			end
+		end
+
+		raise "Invalid IDs #{start_id} #{end_id} #{start} #{final}" unless start && final
+		Selection.new(start, final)
 	end
 end
 
@@ -104,11 +126,11 @@ class Cursor
 	end
 
 	# This is inclusive of the final
-	def until(final, &block)
+	def until_cur(final, &block)
 		cur = self
 		e = Enumerator.new do |i|
 			loop do
-				i << cur.item
+				i << cur
 				break if cur == final
 				break unless cur.has_next?
 				cur = cur.true_next
@@ -120,6 +142,10 @@ class Cursor
 		else
 			e
 		end
+	end
+
+	def until(final, &block)
+		until_cur(final).map(&:item).each(&block)
 	end
 
 	def id

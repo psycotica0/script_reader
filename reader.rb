@@ -8,6 +8,7 @@ require_relative 'take_manager'
 require_relative 'take_display'
 require_relative 'debug_display'
 require_relative 'sync_display'
+require_relative 'session'
 
 if ARGV.length != 1
 	puts "You have to give me a file"
@@ -28,13 +29,13 @@ class Application
 		noecho
 
 		begin
-			p = Parser.new(File.read(ARGV[0]))
+			@p = Parser.new(File.read(ARGV[0]))
 
 			@win = new_win
 			@win.bkgd(Stylesheet.window)
 			@win.keypad(true)
 
-			@wp = WrapPanel.new(1, 1, 0, 0, p)
+			@wp = WrapPanel.new(1, 1, 0, 0, @p)
 			@wp.scroll_margin = 2
 
 			@debug_display = DebugDisplay.instance
@@ -43,7 +44,6 @@ class Application
 			@take_manager = TakeManager.new
 
 			@sync_display = SyncDisplay.new(new_win)
-			@sync_display.sync = Sync.new(0)
 
 			@take_display = TakeDisplay.new(@take_manager, new_win)
 
@@ -52,7 +52,7 @@ class Application
 			layout
 			full_refresh
 
-			@selection = p.selection
+			@selection = @p.selection
 			@selection.to_start!
 			@selection.activate
 
@@ -63,6 +63,31 @@ class Application
 			@wp.noutrefresh
 
 			doupdate
+
+			@session = Session.new(nil)
+
+			@session.on_set_sync do |ss|
+				@sync_display.sync = Sync.new(ss.start_time)
+				@sync_display.refresh
+			end
+
+			@session.on_new_take do |nt|
+				selection = @p.get_selection(nt.selection_start_id, nt.selection_final_id)
+				@take_manager.new_take(nt.start_time, nt.end_time, selection)
+				@take_display.reload!
+				@take_display.refresh
+			end
+
+			@session.on_take_status do |ts|
+				t = @take_manager.get_take(ts.take_id)
+				next unless t
+				t.status = ts.status
+				@take_display.reload!
+				@take_display.select_take(t)
+				@take_display.refresh
+			end
+
+			@session.resume!
 
 			loop do
 				@sync_display.refresh
@@ -117,17 +142,15 @@ class Application
 				when "r"
 					form = SyncForm.new(new_win)
 					result = form.run
-
-					@sync_display.sync = Sync.new(result) if result
-
 					full_refresh
+
+					@session << Session::SetSync.new(Time.now - result.to_i) if result
 				when "i"
 					@take_manager.start_recording(@selection)
 					@take_display.refresh
 				when "o"
-					@take_manager.stop_recording
-					@take_display.selection = @selection
-					@take_display.refresh
+					r = @take_manager.stop_recording
+					@session << r if r
 				when "h"
 					@take_display.pick_left
 					@take_display.refresh
@@ -135,17 +158,17 @@ class Application
 					@take_display.pick_right
 					@take_display.refresh
 				when "7"
-					@take_display.set_status(Take::POOR)
-					@take_display.refresh
+					t = @take_display.current_take
+					@session << Session::TakeStatus.new(t.id, Take::POOR) if t
 				when "8"
-					@take_display.set_status(Take::OKAY)
-					@take_display.refresh
+					t = @take_display.current_take
+					@session << Session::TakeStatus.new(t.id, Take::OKAY) if t
 				when "9"
-					@take_display.set_status(Take::GOOD)
-					@take_display.refresh
+					t = @take_display.current_take
+					@session << Session::TakeStatus.new(t.id, Take::GOOD) if t
 				when "0"
-					@take_display.set_status(Take::TRSH)
-					@take_display.refresh
+					t = @take_display.current_take
+					@session << Session::TakeStatus.new(t.id, Take::TRSH) if t
 				when KEY_RESIZE, 12 # Ctrl-L
 					layout
 					full_refresh
