@@ -24,7 +24,7 @@ class Parser
 	def get_selection(start_id, end_id)
 		start = nil
 		final = nil
-		@sel.start.until(@sel.final).each do |s|
+		@sel.start.until_cur(@sel.final).each do |s|
 			if s.id.to_s == start_id
 				start = s
 			end
