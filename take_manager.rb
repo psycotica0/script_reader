@@ -40,7 +40,7 @@ class TakeManager
 	end
 	
 	def start_recording(selection)
-		@recording = RecordingTake.new(selection.dup.freeze)
+		@recording = RecordingTake.new(selection)
 	end
 
 	def cancel_recording

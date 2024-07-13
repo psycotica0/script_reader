@@ -1,42 +1,48 @@
 require_relative 'parser'
 
-class Parser
-	def selection
-		return @sel if @sel
+class Selection
+end
 
-		@sel = nil
-		@chunks.each do |chunk|
-			s = chunk.selection
-			next unless s
-			
-			if @sel
-				@sel.join!(s)
-			else
-				@sel = s
-			end
+module UnsafeCursorMutation
+	refine Selection do
+		# XXX: By modifying the cursors it means each of the input selections end
+		# up kinda mutated / broken.
+		# It looks immutable on the outside, and the new one functions immutably,
+		# but again, the inputs are consumed in the process!
+		# If you weren't planning on using them again, though, then this is fine.
+		def +(second)
+			@final.next = second.start
+			second.start.prev = @final
+
+			Selection.new(@start, second.final)
 		end
+	end
+end
 
-		@sel
+class Parser
+	using UnsafeCursorMutation
+
+	def full_selection
+		# Apparently I can't trust that `sum` will use my definition of `+`
+		@sel ||= @chunks.map(&:selection).compact.reduce(&:+)
 	end
 
 	# This returns a new selection that goes between (and including) the two
 	# sentences given
 	def get_selection(start_id, end_id)
 		start = nil
-		final = nil
-		@sel.start.until_cur(@sel.final).each do |s|
+		full_selection.start.until_cur(full_selection.final).each do |s|
 			if s.id.to_s == start_id
 				start = s
 			end
 			# It can be both start and end
 			if s.id.to_s == end_id
-				final = s
-				break
+				raise "Invalid Range: End before Start #{start_id} #{end_id}" unless start
+				return Selection.new(start, s)
 			end
 		end
 
-		raise "Invalid IDs #{start_id} #{end_id} #{start} #{final}" unless start && final
-		Selection.new(start, final)
+		raise "Invalid IDs #{start_id} #{end_id}"
 	end
 end
 
@@ -55,28 +61,23 @@ class BlankLine
 end
 
 class Line
-	def selection
-		sel = nil
-		@sents.each do |sent|
-			if sel
-				sel.join!(sent.selection)
-			else
-				sel = sent.selection
-			end
-		end
+	using UnsafeCursorMutation
 
-		sel
+	def selection
+		@sents.map(&:selection).reduce(&:+)
 	end
 end
 
 class Sentence
+	using UnsafeCursorMutation
+
 	def selection
 		cur = Cursor.new(self)
 		sel = Selection.new(cur, cur)
 
 		if @pre_space
 			sc = Cursor.new(@pre_space, true)
-			sel = Selection.new(sc, sc).join!(sel)
+			sel = Selection.new(sc, sc) + sel
 		end
 
 		sel
@@ -159,23 +160,24 @@ class Selection
 	def initialize(start, final)
 		@start = start
 		@final = final
+		freeze
 	end
 
 	def move_down
 		if final.has_next?
 			deactivate
-			@start = final.next
-			@final = start
-			activate
+			Selection.new(final.next, final.next).tap(&:activate)
+		else
+			self
 		end
 	end
 
 	def move_up
 		if start.has_prev?
 			deactivate
-			@start = start.prev
-			@final = start
-			activate
+			Selection.new(start.prev, start.prev).tap(&:activate)
+		else
+			self
 		end
 	end
 
@@ -185,7 +187,9 @@ class Selection
 				s.activate
 				s.redraw
 			end
-			@final = @final.next
+			Selection.new(@start, @final.next)
+		else
+			self
 		end
 	end
 
@@ -195,15 +199,10 @@ class Selection
 				s.activate
 				s.redraw
 			end
-			@start = @start.prev
+			Selection.new(@start.prev, @final)
+		else
+			self
 		end
-	end
-
-	def join!(second)
-		@final.next = second.start
-		second.start.prev = @final
-		@final = second.final
-		self
 	end
 
 	def activate
@@ -220,8 +219,8 @@ class Selection
 		end
 	end
 
-	def to_start!
-		@final = @start
+	def at_start
+		Selection.new(@start, @start)
 	end
 
 	def top

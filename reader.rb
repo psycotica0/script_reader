@@ -52,8 +52,7 @@ class Application
 			layout
 			full_refresh
 
-			@selection = @p.selection
-			@selection.to_start!
+			@selection = @p.full_selection.at_start
 			@selection.activate
 
 			@take_display.selection = @selection
@@ -96,7 +95,7 @@ class Application
 				when "q"
 					break
 				when "j"
-					@selection.move_down
+					@selection = @selection.move_down
 					@wp.scroll_to_fit(@selection)
 					@wp.noutrefresh
 					@take_manager.cancel_recording
@@ -104,7 +103,7 @@ class Application
 					@take_display.noutrefresh
 					doupdate
 				when "k"
-					@selection.move_up
+					@selection = @selection.move_up
 					@wp.scroll_to_fit(@selection)
 					@wp.noutrefresh
 					@take_manager.cancel_recording
@@ -112,7 +111,7 @@ class Application
 					@take_display.noutrefresh
 					doupdate
 				when "J"
-					@selection.spread_down
+					@selection = @selection.spread_down
 					@wp.scroll_to_fit(@selection)
 					@wp.noutrefresh
 					@take_manager.cancel_recording
@@ -120,7 +119,7 @@ class Application
 					@take_display.noutrefresh
 					doupdate
 				when "K"
-					@selection.spread_up
+					@selection = @selection.spread_up
 					@wp.scroll_to_fit(@selection)
 					@wp.noutrefresh
 					@take_manager.cancel_recording
