@@ -24,6 +24,8 @@ begin
 	win.attron(color_pair(1) | A_STANDOUT) { win << "Hello " }
 	win.attron(color_pair(1) | A_UNDERLINE) { win << "Hello " }
 	win.attron(color_pair(1) | A_ITALIC) { win << "Hello " }
+	cbreak
+	win.keypad(true)
 	refresh
 	win.refresh
 	self.timeout = 10000
