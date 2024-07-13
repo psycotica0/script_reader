@@ -6,6 +6,7 @@ require_relative 'sync_form'
 require_relative 'stylesheet'
 require_relative 'take_manager'
 require_relative 'take_display'
+require_relative 'take_info_display'
 require_relative 'debug_display'
 require_relative 'sync_display'
 require_relative 'session'
@@ -47,6 +48,12 @@ class Application
 
 			@take_display = TakeDisplay.new(@take_manager, new_win)
 
+			@take_info_display = TakeInfoDisplay.new(new_win)
+			@take_display.on_take_selected do |take|
+				@take_info_display.take = take
+				@take_info_display.noutrefresh
+			end
+
 			self.timeout = 500
 
 			layout
@@ -76,7 +83,7 @@ class Application
 
 			@session.on_new_take do |nt|
 				selection = @p.get_selection(nt.selection_start_id, nt.selection_final_id)
-				@take_manager.new_take(nt.start_time, nt.end_time, selection)
+				@take_manager.new_take(@sync_display.sync, nt.start_time, nt.end_time, selection)
 				selection.mark_recorded
 				@wp.noutrefresh
 				@take_display.reload!
@@ -219,12 +226,16 @@ class Application
 		@debug_display.win.resize(1, stdscr.maxx)
 
 		sd_width = "00:00:00".length
-		@sync_display.move(0, stdscr.maxx - sd_width - 1)
+		@sync_display.move(0, stdscr.maxx - sd_width - w_margin_x)
 		@sync_display.resize(1, sd_width)
 
 		tw_width = " 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15".length
-		@take_display.move(0, stdscr.maxx - sd_width - 1 - tw_width)
+		@take_display.move(0, stdscr.maxx - sd_width - w_margin_x - 1 - tw_width)
 		@take_display.resize(1, tw_width)
+
+		ti_width = "000: 00:00:00 - 00:00:00".length
+		@take_info_display.move(lines - 1, cols - w_margin_x - ti_width)
+		@take_info_display.resize(1, ti_width)
 	end
 
 	def change_selection(new_sel, activate=false, toggle=nil)
@@ -247,6 +258,7 @@ class Application
 		@wp.noutrefresh
 		@sync_display.noutrefresh
 		@take_display.noutrefresh
+		@take_info_display.noutrefresh
 		doupdate
 	end
 

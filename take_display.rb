@@ -38,6 +38,7 @@ class TakeDisplay
 	def reload!
 		@takes = @tm.find_takes(@sel)
 		@cur = @takes.length
+		@ts_handler.call(current_take)
 	end
 
 	def noutrefresh
@@ -75,12 +76,14 @@ class TakeDisplay
 		return if @takes.empty?
 		return if @tm.recording # The recording is always selected
 		@cur = (@cur - 1).clamp(1, @takes.length)
+		@ts_handler.call(current_take)
 	end
 
 	def pick_right
 		return if @takes.empty?
 		return if @tm.recording # The recording is always selected
 		@cur = (@cur + 1).clamp(1, @takes.length)
+		@ts_handler.call(current_take)
 	end
 
 	def set_status(status)
@@ -106,5 +109,10 @@ class TakeDisplay
 	def select_take(take)
 		c = @takes.find_index(take)
 		@cur = c + 1 if c
+		@ts_handler.call(current_take)
+	end
+
+	def on_take_selected(&block)
+		@ts_handler = block
 	end
 end

@@ -64,4 +64,8 @@ class Sync
 	def to_i
 		Time.now - @start_time
 	end
+
+	def offset_to(time)
+		Duration.new(time - @start_time)
+	end
 end

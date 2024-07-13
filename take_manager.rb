@@ -7,12 +7,13 @@ class Take
 	GOOD = 3
 	TRSH = 4
 
-	attr_reader :id, :selection, :start_time, :end_time
+	attr_reader :id, :selection, :sync, :start_time, :end_time
 	attr_accessor :status
 
-	def initialize(id, selection, start_time, end_time)
+	def initialize(id, selection, sync, start_time, end_time)
 		@id = id
 		@selection = selection
+		@sync = sync
 		@start_time = start_time
 		@end_time = end_time
 	end
@@ -58,8 +59,8 @@ class TakeManager
 		@takes.select { |i| i.selection.contains?(selection) }
 	end
 
-	def new_take(start_time, end_time, selection)
-		@takes << Take.new(@take_ids, selection, start_time, end_time)
+	def new_take(sync, start_time, end_time, selection)
+		@takes << Take.new(@take_ids, selection, sync, start_time, end_time)
 		@take_ids += 1
 	end
 
