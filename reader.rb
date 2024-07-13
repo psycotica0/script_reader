@@ -54,7 +54,7 @@ class Application
 				@take_info_display.noutrefresh
 			end
 
-			self.timeout = 500
+			self.timeout = 1000 / 30 # 30 FPS
 
 			layout
 			full_refresh

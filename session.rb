@@ -1,27 +1,27 @@
 class Session
 	SetSync = Struct.new(:start_time) do
 		def serialize
-			["SS", start_time.to_i].join(":")
+			["SS", start_time.to_i, start_time.usec].join(":")
 		end
 
 		def self.deserialize(str)
-			code, start_str = str.split(":")
+			code, start_str, start_usec_str = str.split(":")
 			return unless code == "SS"
 
-			new(Time.at(start_str.to_i))
+			new(Time.at(start_str.to_i, start_usec_str.to_i))
 		end
 	end
 
 	NewTake = Struct.new(:start_time, :end_time, :selection_start_id, :selection_final_id) do
 		def serialize
-			["NT", start_time.to_i, end_time.to_i, selection_start_id, selection_final_id].join(":")
+			["NT", start_time.to_i, start_time.usec, end_time.to_i, end_time.usec, selection_start_id, selection_final_id].join(":")
 		end
 
 		def self.deserialize(str)
-			code, start_str, end_str, start_id, end_id = str.split(":")
+			code, start_str, start_usec_str, end_str, end_usec_str, start_id, end_id = str.split(":")
 			return unless code == "NT"
 
-			new(Time.at(start_str.to_i), Time.at(end_str.to_i), start_id, end_id)
+			new(Time.at(start_str.to_i, start_usec_str.to_i), Time.at(end_str.to_i, end_usec_str.to_i), start_id, end_id)
 		end
 	end
 
@@ -44,14 +44,14 @@ class Session
 	# Feels like metadata I _could_ use, so I may as well capture
 	ClearSync = Struct.new(:at_time) do
 		def serialize
-			["CS", at_time.to_i].join(":")
+			["CS", at_time.to_i, at_time.usec].join(":")
 		end
 
 		def self.deserialize(str)
-			code, at_str = str.split(":")
+			code, at_str, at_usec_str = str.split(":")
 			return unless code == "CS"
 
-			new(Time.at(at_str.to_i))
+			new(Time.at(at_str.to_i, at_usec_str.to_i))
 		end
 	end
 
