@@ -1,6 +1,5 @@
 - "g", "G" for first line, last line
 - maybe "t" to toggle between wall-clock and sync display for take info display
-- actual event log, save and resume
 - export to cue maybe?
 - export to simple "timestamp label" format
 - export to simple takes per sentence format
@@ -23,3 +22,4 @@ Done:
 - Ctrl-S to stop / clear the sync ("S", Ctrl-S reserved)
 - "." for most-recent take
 - take time-range display
+- actual event log, save and resume

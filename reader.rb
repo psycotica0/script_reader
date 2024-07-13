@@ -11,7 +11,7 @@ require_relative 'debug_display'
 require_relative 'sync_display'
 require_relative 'session'
 
-if ARGV.length != 1
+if ARGV.length != 1 && ARGV.length != 2
 	puts "You have to give me a file"
 	exit 1
 end
@@ -70,7 +70,10 @@ class Application
 
 			doupdate
 
-			@session = Session.new(nil)
+			@session = Session.new(File.open(
+				ARGV[1] || "#{ARGV[0]}.session.001",
+				File::Constants::RDWR | File::Constants::CREAT
+			))
 
 			@session.on_set_sync do |ss|
 				@sync_display.sync = Sync.new(ss.start_time)
@@ -202,6 +205,7 @@ class Application
 			end
 		ensure
 			close_screen
+			@session.close if @session
 		end
 	end
 

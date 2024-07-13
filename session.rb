@@ -57,12 +57,17 @@ class Session
 
 	def initialize(file)
 		@file = file
+		@file.sync = true
+	end
+
+	def close
+		@file.close
 	end
 
 	# This reads the file and processes the existing commands it finds
 	def resume!
 		@resumed = true
-		# TODO: DO
+		@file.read.lines {|e| handle(e.strip) }
 	end
 
 	def handle(str)
@@ -93,7 +98,10 @@ class Session
 		raise "Trying to add to unresumed stream!" unless @resumed
 		
 		str = action.serialize
-		# TODO write to file
+		@file << str << "\n"
+		# Not the most efficient, but make sure before moving on that the disk
+		# definitely has our action
+		@file.fsync
 
 		handle(str)
 	end
