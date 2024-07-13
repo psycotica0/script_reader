@@ -73,8 +73,11 @@ class Application
 			@session.on_new_take do |nt|
 				selection = @p.get_selection(nt.selection_start_id, nt.selection_final_id)
 				@take_manager.new_take(nt.start_time, nt.end_time, selection)
+				selection.mark_recorded
+				@wp.noutrefresh
 				@take_display.reload!
-				@take_display.refresh
+				@take_display.noutrefresh
+				doupdate
 			end
 
 			@session.on_take_status do |ts|

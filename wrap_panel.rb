@@ -59,6 +59,9 @@ class InterSentenceSpace
 	def id
 		ID.new(0, 0)
 	end
+
+	def mark_recorded
+	end
 end
 
 class Sentence
@@ -97,6 +100,10 @@ class Sentence
 	def bottom
 		@spans.last.bottom
 	end
+
+	def mark_recorded
+		@spans.each(&:mark_recorded)
+	end
 end
 
 class Span
@@ -126,7 +133,7 @@ class Span
 				word.lstrip!
 			end
 
-			@pad.attron(attrs | active_attr) do
+			@pad.attron(attrs | active_attr | recorded_attr) do
 				@pad << word
 			end
 		end
@@ -135,6 +142,11 @@ class Span
 	def redraw
 		@pad.setpos(@y, @x)
 		draw
+	end
+
+	def recorded_attr
+		return 0 if @active # Active is always highlighted, never dim
+		@recorded ? 0 : Stylesheet.unrecorded_script_text
 	end
 
 	def active_attr
@@ -155,6 +167,10 @@ class Span
 
 	def bottom
 		@y2
+	end
+
+	def mark_recorded
+		@recorded = true
 	end
 end
 

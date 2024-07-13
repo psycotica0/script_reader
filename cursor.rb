@@ -219,6 +219,13 @@ class Selection
 		end
 	end
 
+	def mark_recorded
+		@start.until(@final) do |s|
+			s.mark_recorded
+			s.redraw
+		end
+	end
+
 	def at_start
 		Selection.new(@start, @start)
 	end
