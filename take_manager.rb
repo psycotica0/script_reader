@@ -66,4 +66,8 @@ class TakeManager
 	def get_take(take_id)
 		@takes.find { |t| t.id == take_id }
 	end
+
+	def most_recent_take
+		@takes.last
+	end
 end

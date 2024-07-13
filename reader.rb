@@ -113,6 +113,20 @@ class Application
 				when "K"
 					change_selection(@selection.spread_up)
 					doupdate
+				when "."
+					t = @take_manager.most_recent_take
+					next unless t
+					if t.selection == @selection && @toggle_selection
+						change_selection(@toggle_selection, true)
+						@take_display.select_take(t)
+						@take_display.noutrefresh
+						doupdate
+					elsif t.selection != @selection
+						change_selection(t.selection, true, @selection)
+						@take_display.select_take(t)
+						@take_display.noutrefresh
+						doupdate
+					end
 				when 5 # Ctrl-E
 					@wp.scroll(1)
 					@wp.refresh
