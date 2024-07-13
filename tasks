@@ -1,6 +1,5 @@
 - "g", "G", "." for first line, last line, most recent take
 - take time-range display, maybe "t" to toggle between wall-clock and sync display
-- Ctrl-S to stop / clear the sync
 - actual event log, save and resume
 - export to cue maybe?
 - export to simple "timestamp label" format
@@ -21,3 +20,4 @@
 Done:
 - "m" to expand to the selection of a superset take, or to toggle back
 - unrecorded sentence state display
+- Ctrl-S to stop / clear the sync ("S", Ctrl-S reserved)

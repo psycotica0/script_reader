@@ -10,7 +10,8 @@ class SyncDisplay
 
 	def noutrefresh
 		unless @sync
-			@win.clear
+			@win.erase
+			@win.noutrefresh
 			return
 		end
 
@@ -32,5 +33,10 @@ class SyncDisplay
 
 	def resize(height, width)
 		@win.resize(height, width)
+	end
+
+	def clear
+		@sync = nil
+		refresh
 	end
 end

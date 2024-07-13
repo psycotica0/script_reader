@@ -70,6 +70,10 @@ class Application
 				@sync_display.refresh
 			end
 
+			@session.on_clear_sync do |cs|
+				@sync_display.clear
+			end
+
 			@session.on_new_take do |nt|
 				selection = @p.get_selection(nt.selection_start_id, nt.selection_final_id)
 				@take_manager.new_take(nt.start_time, nt.end_time, selection)
@@ -121,12 +125,14 @@ class Application
 				when 21 # Ctrl-U
 					@wp.scroll(-@wp.height / 2)
 					@wp.refresh
-				when "r"
+				when "s"
 					form = SyncForm.new(new_win)
 					result = form.run
 					full_refresh
 
 					@session << Session::SetSync.new(Time.now - result.to_i) if result
+				when "S"
+					@session << Session::ClearSync.new(Time.now)
 				when "i"
 					@toggle_selection = nil
 					@take_manager.start_recording(@selection)

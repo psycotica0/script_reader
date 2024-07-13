@@ -38,6 +38,23 @@ class Session
 		end
 	end
 
+	# I don't know why I care when the sync ended...
+	# But it feels like I may use it at some point to compute... duration of
+	# sync or something? Or "latest" session?
+	# Feels like metadata I _could_ use, so I may as well capture
+	ClearSync = Struct.new(:at_time) do
+		def serialize
+			["CS", at_time.to_i].join(":")
+		end
+
+		def self.deserialize(str)
+			code, at_str = str.split(":")
+			return unless code == "CS"
+
+			new(Time.at(at_str.to_i))
+		end
+	end
+
 	def initialize(file)
 		@file = file
 	end
@@ -57,6 +74,9 @@ class Session
 
 		ts = TakeStatus.deserialize(str)
 		return @ts_handler.call(ts) if ts
+
+		cs = ClearSync.deserialize(str)
+		return @cs_handler.call(cs) if cs
 	end
 
 	# This is specifically built so that I don't have two execution paths for
@@ -88,5 +108,9 @@ class Session
 
 	def on_take_status(&block)
 		@ts_handler = block
+	end
+
+	def on_clear_sync(&block)
+		@cs_handler = block
 	end
 end
