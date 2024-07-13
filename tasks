@@ -1,6 +1,4 @@
 - "g", "G", "." for first line, last line, most recent take
-- "m" to expand to the selection of a superset take, or to toggle back
-- unrecorded sentence state display
 - take time-range display, maybe "t" to toggle between wall-clock and sync display
 - Ctrl-S to stop / clear the sync
 - actual event log, save and resume
@@ -14,3 +12,12 @@
 - "V" to select all sentences in a line
 - "/" to search, "n" to search forward, "N" to search backward
 - "?" to show keybinding help
+- "Ctrl-N" to start a new session (maybe with confirmation)
+- "Ctrl-O" to open a list of sessions for this file and pick one (probably just
+  exec self with other file so I don't have to worry about reinitializing)
+- "c" to add a text comment to a take. Not sure where I export this to... so maybe useless
+- "C" to add file-level comment describing the session, to show up in the Ctrl-O session list
+
+Done:
+- "m" to expand to the selection of a superset take, or to toggle back
+- unrecorded sentence state display
