@@ -98,40 +98,16 @@ class Application
 				when "q"
 					break
 				when "j"
-					@selection = @selection.move_down
-					@wp.scroll_to_fit(@selection)
-					@wp.noutrefresh
-					@take_manager.cancel_recording
-					@toggle_selection = nil
-					@take_display.selection = @selection
-					@take_display.noutrefresh
+					change_selection(@selection.move_down)
 					doupdate
 				when "k"
-					@selection = @selection.move_up
-					@wp.scroll_to_fit(@selection)
-					@wp.noutrefresh
-					@take_manager.cancel_recording
-					@toggle_selection = nil
-					@take_display.selection = @selection
-					@take_display.noutrefresh
+					change_selection(@selection.move_up)
 					doupdate
 				when "J"
-					@selection = @selection.spread_down
-					@wp.scroll_to_fit(@selection)
-					@wp.noutrefresh
-					@take_manager.cancel_recording
-					@toggle_selection = nil
-					@take_display.selection = @selection
-					@take_display.noutrefresh
+					change_selection(@selection.spread_down)
 					doupdate
 				when "K"
-					@selection = @selection.spread_up
-					@wp.scroll_to_fit(@selection)
-					@wp.noutrefresh
-					@take_manager.cancel_recording
-					@toggle_selection = nil
-					@take_display.selection = @selection
-					@take_display.noutrefresh
+					change_selection(@selection.spread_up)
 					doupdate
 				when 5 # Ctrl-E
 					@wp.scroll(1)
@@ -170,23 +146,12 @@ class Application
 					t = @take_display.current_take
 					next unless t
 					if t.selection == @selection && @toggle_selection
-						@selection, @toggle_selection = @toggle_selection, @selection
-						@toggle_selection.deactivate
-						@selection.activate
-						@wp.scroll_to_fit(@selection)
-						@wp.noutrefresh
-						@take_display.selection = @selection
+						change_selection(@toggle_selection, true)
 						@take_display.select_take(t)
 						@take_display.noutrefresh
 						doupdate
 					elsif t.selection != @selection
-						@toggle_selection = @selection
-						@selection = t.selection
-						@toggle_selection.deactivate
-						@selection.activate
-						@wp.scroll_to_fit(@selection)
-						@wp.noutrefresh
-						@take_display.selection = @selection
+						change_selection(t.selection, true, @selection)
 						@take_display.select_take(t)
 						@take_display.noutrefresh
 						doupdate
@@ -240,6 +205,18 @@ class Application
 		tw_width = " 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15".length
 		@take_display.move(0, stdscr.maxx - sd_width - 1 - tw_width)
 		@take_display.resize(1, tw_width)
+	end
+
+	def change_selection(new_sel, activate=false, toggle=nil)
+		@selection.deactivate if activate
+		@selection = new_sel
+		@selection.activate if activate
+		@wp.scroll_to_fit(@selection)
+		@wp.noutrefresh
+		@take_manager.cancel_recording
+		@toggle_selection = toggle
+		@take_display.selection = @selection
+		@take_display.noutrefresh
 	end
 
 	def full_refresh
