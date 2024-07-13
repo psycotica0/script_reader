@@ -58,6 +58,17 @@ class Session
 	def initialize(file)
 		@file = file
 		@file.sync = true
+
+		begin
+			@file.fsync
+			@can_fsync = true
+		rescue NotImplementedError
+			# Not implemented happens if the OS doesn't support the feature
+			@can_fsync = false
+		rescue Errno::EINVAL
+			# EInval happens if the file doesn't support the feature (notably /dev/null)
+			@can_fsync = false
+		end
 	end
 
 	def close
@@ -101,7 +112,7 @@ class Session
 		@file << str << "\n"
 		# Not the most efficient, but make sure before moving on that the disk
 		# definitely has our action
-		@file.fsync
+		@file.fsync if @can_fsync
 
 		handle(str)
 	end
