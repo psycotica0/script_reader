@@ -99,6 +99,7 @@ class Application
 					@wp.scroll_to_fit(@selection)
 					@wp.noutrefresh
 					@take_manager.cancel_recording
+					@toggle_selection = nil
 					@take_display.selection = @selection
 					@take_display.noutrefresh
 					doupdate
@@ -107,6 +108,7 @@ class Application
 					@wp.scroll_to_fit(@selection)
 					@wp.noutrefresh
 					@take_manager.cancel_recording
+					@toggle_selection = nil
 					@take_display.selection = @selection
 					@take_display.noutrefresh
 					doupdate
@@ -115,6 +117,7 @@ class Application
 					@wp.scroll_to_fit(@selection)
 					@wp.noutrefresh
 					@take_manager.cancel_recording
+					@toggle_selection = nil
 					@take_display.selection = @selection
 					@take_display.noutrefresh
 					doupdate
@@ -123,6 +126,7 @@ class Application
 					@wp.scroll_to_fit(@selection)
 					@wp.noutrefresh
 					@take_manager.cancel_recording
+					@toggle_selection = nil
 					@take_display.selection = @selection
 					@take_display.noutrefresh
 					doupdate
@@ -145,6 +149,7 @@ class Application
 
 					@session << Session::SetSync.new(Time.now - result.to_i) if result
 				when "i"
+					@toggle_selection = nil
 					@take_manager.start_recording(@selection)
 					@take_display.refresh
 				when "o"
@@ -153,9 +158,36 @@ class Application
 				when "h"
 					@take_display.pick_left
 					@take_display.refresh
+					@toggle_selection = nil
 				when "l"
 					@take_display.pick_right
 					@take_display.refresh
+					@toggle_selection = nil
+				when "m"
+					t = @take_display.current_take
+					next unless t
+					if t.selection == @selection && @toggle_selection
+						@selection, @toggle_selection = @toggle_selection, @selection
+						@toggle_selection.deactivate
+						@selection.activate
+						@wp.scroll_to_fit(@selection)
+						@wp.noutrefresh
+						@take_display.selection = @selection
+						@take_display.select_take(t)
+						@take_display.noutrefresh
+						doupdate
+					elsif t.selection != @selection
+						@toggle_selection = @selection
+						@selection = t.selection
+						@toggle_selection.deactivate
+						@selection.activate
+						@wp.scroll_to_fit(@selection)
+						@wp.noutrefresh
+						@take_display.selection = @selection
+						@take_display.select_take(t)
+						@take_display.noutrefresh
+						doupdate
+					end
 				when "7"
 					t = @take_display.current_take
 					@session << Session::TakeStatus.new(t.id, Take::POOR) if t
