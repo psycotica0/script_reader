@@ -12,11 +12,12 @@ class Duration
 		@n = n
 	end
 
-	def to_s
+	def to_s(precision=0)
 		hours, rest = @n.divmod(3600)
 		minutes, seconds = rest.divmod(60)
 
-		"%02d:%02d:%02d" % [hours, minutes, seconds]
+		second_width = precision == 0 ? 2 : 3 + precision
+		"%02d:%02d:%0*.*f" % [hours, minutes, second_width, precision, seconds]
 	end
 
 	def to_i
@@ -49,6 +50,10 @@ class Duration
 		e, f = rest.divmod(10)
 
 		@n = (a / 10) * (60 * 60) + (b * 10 + c) * 60 + (d * 10 + e)
+	end
+
+	def +(other)
+		Duration.new(@n + other)
 	end
 end
 

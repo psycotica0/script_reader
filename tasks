@@ -23,3 +23,5 @@ Done:
 - "." for most-recent take
 - take time-range display
 - actual event log, save and resume
+- I should be able to interrupt playback by scrolling, picking a new take, or
+  when adjusting the fine-tune

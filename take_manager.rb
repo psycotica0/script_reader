@@ -17,6 +17,14 @@ class Take
 		@start_time = start_time
 		@end_time = end_time
 	end
+
+	def start_pos
+		@sync.offset_to(@start_time) if @sync
+	end
+
+	def end_pos
+		@sync.offset_to(@end_time) if @sync
+	end
 end
 
 class RecordingTake

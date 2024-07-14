@@ -10,6 +10,7 @@ require_relative 'take_info_display'
 require_relative 'debug_display'
 require_relative 'sync_display'
 require_relative 'session'
+require_relative 'output'
 
 if ARGV.length != 1 && ARGV.length != 2
 	puts "You have to give me a file"
@@ -103,10 +104,13 @@ class Application
 				@take_display.refresh
 			end
 
+			@output = Output.new
+
 			@session.resume!
 
 			loop do
 				@sync_display.refresh
+				@output.update_state
 
 				case getch
 				when "q"
@@ -174,10 +178,12 @@ class Application
 					@take_display.pick_left
 					@take_display.refresh
 					@toggle_selection = nil
+					@output.stop_playing
 				when "l"
 					@take_display.pick_right
 					@take_display.refresh
 					@toggle_selection = nil
+					@output.stop_playing
 				when "m"
 					t = @take_display.current_take
 					next unless t
@@ -204,12 +210,15 @@ class Application
 				when "0"
 					t = @take_display.current_take
 					@session << Session::TakeStatus.new(t.id, Take::TRSH) if t
+				when "p"
+					@output.play_takes([@take_display.current_take].compact)
 				when KEY_RESIZE, 12 # Ctrl-L
 					layout
 					full_refresh
 				end
 			end
 		ensure
+			@output.stop_playing(true)
 			close_screen
 			@session.close if @session
 		end
@@ -258,6 +267,7 @@ class Application
 		@toggle_selection = toggle
 		@take_display.selection = @selection
 		@take_display.noutrefresh
+		@output.stop_playing
 	end
 
 	def full_refresh
