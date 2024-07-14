@@ -68,4 +68,10 @@ class Sync
 	def offset_to(time)
 		Duration.new(time - @start_time)
 	end
+
+	# Return a new time based on this one plus the given fractional second
+	# offset
+	def offset(s)
+		@start_time + s
+	end
 end

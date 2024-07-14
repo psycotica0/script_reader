@@ -157,6 +157,12 @@ class Application
 					@session << Session::SetSync.new(Time.now - result.to_i) if result
 				when "S"
 					@session << Session::ClearSync.new(Time.now)
+				when "-"
+					next unless @sync_display.sync
+					@session << Session::SetSync.new(@sync_display.sync.offset(-0.05))
+				when "+"
+					next unless @sync_display.sync
+					@session << Session::SetSync.new(@sync_display.sync.offset(0.05))
 				when "i"
 					@toggle_selection = nil
 					@take_manager.start_recording(@selection)
