@@ -10,11 +10,44 @@
 - "V" to select all sentences in a line
 - "/" to search, "n" to search forward, "N" to search backward
 - "?" to show keybinding help
+- "[" and "]" to jump to earliest and latest sentence that has a take.
+   Probably "[" will always be the same as "g", but not necessarily.
+	Often "]" will be the same as ".", but not always, like if I go back to
+	re-record something
+- "{" and "}" to jump to next line
+- "^" and "$" to go to first and last sentence in line
+- "v" visual mode. All of the movement commands do the same thing, but they all
+  stretch the selection to encompass the existing range and also where we've
+  moved to.
+  So "vjv" would be the same as "J". But "vgGv" would select the whole file.
+  And "v[]V" the whole segment with takes
+  "v}}}v" would be the next 3 lines. "v^$v" would be "V"
+  "v:13v" would select from here to line 13, I guess.
 - "Ctrl-N" to start a new session (maybe with confirmation)
 - "Ctrl-O" to open a list of sessions for this file and pick one (probably just
   exec self with other file so I don't have to worry about reinitializing)
 - "c" to add a text comment to a take. Not sure where I export this to... so maybe useless
 - "C" to add file-level comment describing the session, to show up in the Ctrl-O session list
+- "P" to play the best takes of a selection (like the export).
+  That's not "of the takes that cover this selection pick the best as play
+  it", it's more like "of all the sentences in this take, pick the best of
+  each", like the choice take export does.
+  This way we can preview just a portion without doing a full export and then
+  finding where our takes are in it...
+- If my different syncs are differently offset, then a single global offset may
+  not be enough... it may be the case where all of the ones from this sync are
+  in sync, and all the ones from these other syncs are wrong. Unsure how I'd
+  like to fix that, so for now I'm ignoring it and hoping it never comes up.
+  Current system handles equally good syncs, with a systematic offset.
+  I could maybe have the FineTune box have multiple sync bars (only the syncs
+  with takes that use them). Then I could wiggle multiple of them together, or
+  tweak the separately...
+
+  Unsure, and again it's easier to just hope that good syncing alone will fix this.
+- I _may_ want the ability to tweak a single take one way or the other. Like if
+  I hit the end take button too late or something. This is getting a bit dicey
+  though and may just be handled better in the edit...
+
 
 Done:
 - "m" to expand to the selection of a superset take, or to toggle back
