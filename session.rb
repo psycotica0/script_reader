@@ -55,6 +55,19 @@ class Session
 		end
 	end
 
+	FineTune = Struct.new(:offset_ms) do
+		def serialize
+			["FT", offset_ms].join(":")
+		end
+
+		def self.deserialize(str)
+			code, offset_ms_str = str.split(":")
+			return unless code == "FT"
+
+			new(offset_ms_str.to_i)
+		end
+	end
+
 	def initialize(file)
 		@file = file
 		@file.sync = true
@@ -93,6 +106,9 @@ class Session
 
 		cs = ClearSync.deserialize(str)
 		return @cs_handler.call(cs) if cs
+
+		ft = FineTune.deserialize(str)
+		return @ft_handler.call(ft) if ft
 	end
 
 	# This is specifically built so that I don't have two execution paths for
@@ -131,5 +147,9 @@ class Session
 
 	def on_clear_sync(&block)
 		@cs_handler = block
+	end
+
+	def on_fine_tune(&block)
+		@ft_handler = block
 	end
 end

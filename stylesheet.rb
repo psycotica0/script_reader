@@ -9,6 +9,7 @@ class Stylesheet
 
 		attr_accessor :window, :script_text, :active_script_text, :unrecorded_script_text, :sync_form_label, :sync_form_input, :debug, :sync_display
 		attr_accessor :take, :take_poor, :take_okay, :take_good, :take_trsh, :take_rec, :take_subset, :take_active
+		attr_accessor :fine_tune_window, :fine_tune_bar, :fine_tune_bar_selected
 
 		def init
 			cwin = col(COLOR_WHITE, COLOR_BLUE)
@@ -29,6 +30,8 @@ class Stylesheet
 			@sync_display = color_pair(col(COLOR_WHITE, COLOR_BLACK))
 
 			init_takes
+
+			init_fine_tune
 		end
 
 		def init_takes
@@ -53,6 +56,12 @@ class Stylesheet
 			@take_subset = A_UNDERLINE
 
 			@take_active = A_STANDOUT
+		end
+
+		def init_fine_tune
+			@fine_tune_window = color_pair(col(COLOR_WHITE, COLOR_BLUE))
+			@fine_tune_bar = color_pair(col(COLOR_WHITE, COLOR_CYAN))
+			@fine_tune_bar_selected = color_pair(col(COLOR_WHITE, COLOR_YELLOW))
 		end
 
 		def col(fore, back)

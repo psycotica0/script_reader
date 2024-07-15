@@ -11,6 +11,7 @@ require_relative 'debug_display'
 require_relative 'sync_display'
 require_relative 'session'
 require_relative 'output'
+require_relative 'fine_tune_form'
 
 if ARGV.length != 1 && ARGV.length != 2
 	puts "You have to give me a file"
@@ -102,6 +103,10 @@ class Application
 				@take_display.reload!
 				@take_display.select_take(t)
 				@take_display.refresh
+			end
+
+			@session.on_fine_tune do |ft|
+				@output.global_offset_ms = ft.offset_ms
 			end
 
 			@output = Output.new
@@ -212,6 +217,13 @@ class Application
 					@session << Session::TakeStatus.new(t.id, Take::TRSH) if t
 				when "p"
 					@output.play_takes([@take_display.current_take].compact)
+				when "F"
+					t = @take_display.current_take
+					next unless t
+					f = FineTuneForm.new(t, @output)
+					r = f.run
+					@session << Session::FineTune.new(r) if r
+					full_refresh
 				when KEY_RESIZE, 12 # Ctrl-L
 					layout
 					full_refresh
