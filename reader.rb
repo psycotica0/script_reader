@@ -146,16 +146,16 @@ class Application
 						@take_display.noutrefresh
 						doupdate
 					end
-				when 5 # Ctrl-E
+				when KEY_CTRL_E
 					@wp.scroll(1)
 					@wp.refresh
-				when 25 # Ctrl-Y
+				when KEY_CTRL_Y
 					@wp.scroll(-1)
 					@wp.refresh
-				when 4 # Ctrl-D
+				when KEY_CTRL_D
 					@wp.scroll(@wp.height / 2)
 					@wp.refresh
-				when 21 # Ctrl-U
+				when KEY_CTRL_U
 					@wp.scroll(-@wp.height / 2)
 					@wp.refresh
 				when "s"
@@ -224,7 +224,7 @@ class Application
 					r = f.run
 					@session << Session::FineTune.new(r) if r
 					full_refresh
-				when KEY_RESIZE, 12 # Ctrl-L
+				when KEY_RESIZE, KEY_CTRL_L
 					layout
 					full_refresh
 				end
