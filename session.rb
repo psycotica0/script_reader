@@ -1,40 +1,27 @@
+require_relative 'session_meta'
+
 class Session
-	SetSync = Struct.new(:start_time) do
-		def serialize
-			["SS", start_time.to_i, start_time.usec].join(":")
+	event :SetSync, :on_set_sync, "SS", :start_time do
+		serial do |st|
+			[st.to_i, st.usec]
 		end
-
-		def self.deserialize(str)
-			code, start_str, start_usec_str = str.split(":")
-			return unless code == "SS"
-
-			new(Time.at(start_str.to_i, start_usec_str.to_i))
+		deserial do |st, us|
+			[Time.at(st.to_i, us.to_i)]
 		end
 	end
 
-	NewTake = Struct.new(:start_time, :end_time, :selection_start_id, :selection_final_id) do
-		def serialize
-			["NT", start_time.to_i, start_time.usec, end_time.to_i, end_time.usec, selection_start_id, selection_final_id].join(":")
+	event :NewTake, :on_new_take, "NT", :start_time, :end_time, :selection_start_id, :selection_final_id do
+		serial do |st, et, ssid, sfid|
+			[st.to_i, st.usec, et.to_i, et.usec, ssid, sfid]
 		end
-
-		def self.deserialize(str)
-			code, start_str, start_usec_str, end_str, end_usec_str, start_id, end_id = str.split(":")
-			return unless code == "NT"
-
-			new(Time.at(start_str.to_i, start_usec_str.to_i), Time.at(end_str.to_i, end_usec_str.to_i), start_id, end_id)
+		deserial do |st, su, et, eu, ssid, sfid|
+			[Time.at(st.to_i, su.to_i), Time.at(et.to_i, eu.to_i), ssid, sfid]
 		end
 	end
 
-	TakeStatus = Struct.new(:take_id, :status) do
-		def serialize
-			["TS", take_id, status].join(":")
-		end
-
-		def self.deserialize(str)
-			code, take_id, status = str.split(":")
-			return unless code == "TS"
-
-			new(take_id.to_i, status.to_i)
+	event :TakeStatus, :on_take_status, "TS", :take_id, :status do
+		deserial do |ti, s|
+			[ti.to_i, s.to_i]
 		end
 	end
 
@@ -42,29 +29,18 @@ class Session
 	# But it feels like I may use it at some point to compute... duration of
 	# sync or something? Or "latest" session?
 	# Feels like metadata I _could_ use, so I may as well capture
-	ClearSync = Struct.new(:at_time) do
-		def serialize
-			["CS", at_time.to_i, at_time.usec].join(":")
+	event :ClearSync, :on_clear_sync, "CS", :at_time do
+		serial do |at|
+			[at.to_i, at.usec]
 		end
-
-		def self.deserialize(str)
-			code, at_str, at_usec_str = str.split(":")
-			return unless code == "CS"
-
-			new(Time.at(at_str.to_i, at_usec_str.to_i))
+		deserial do |at, au|
+			[Time.at(at.to_i, au.to_i)]
 		end
 	end
 
-	FineTune = Struct.new(:offset_ms) do
-		def serialize
-			["FT", offset_ms].join(":")
-		end
-
-		def self.deserialize(str)
-			code, offset_ms_str = str.split(":")
-			return unless code == "FT"
-
-			new(offset_ms_str.to_i)
+	event :FineTune, :on_fine_tune, "FT", :offset_ms do
+		deserial do |om|
+			[om.to_i]
 		end
 	end
 
@@ -95,20 +71,7 @@ class Session
 	end
 
 	def handle(str)
-		ss = SetSync.deserialize(str)
-		return @ss_handler.call(ss) if ss
-
-		nt = NewTake.deserialize(str)
-		return @nt_handler.call(nt) if nt
-
-		ts = TakeStatus.deserialize(str)
-		return @ts_handler.call(ts) if ts
-
-		cs = ClearSync.deserialize(str)
-		return @cs_handler.call(cs) if cs
-
-		ft = FineTune.deserialize(str)
-		return @ft_handler.call(ft) if ft
+		self.class.handle(str)
 	end
 
 	# This is specifically built so that I don't have two execution paths for
@@ -131,25 +94,5 @@ class Session
 		@file.fsync if @can_fsync
 
 		handle(str)
-	end
-
-	def on_set_sync(&block)
-		@ss_handler = block
-	end
-
-	def on_new_take(&block)
-		@nt_handler = block
-	end
-
-	def on_take_status(&block)
-		@ts_handler = block
-	end
-
-	def on_clear_sync(&block)
-		@cs_handler = block
-	end
-
-	def on_fine_tune(&block)
-		@ft_handler = block
 	end
 end
