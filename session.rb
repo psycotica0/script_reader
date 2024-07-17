@@ -3,19 +3,19 @@ require_relative 'session_meta'
 class Session
 	event :SetSync, :on_set_sync, "SS", :start_time do
 		serial do |st|
-			[st.to_i, st.usec]
+			t(st)
 		end
 		deserial do |st, us|
-			[Time.at(st.to_i, us.to_i)]
+			t(st,us)
 		end
 	end
 
 	event :NewTake, :on_new_take, "NT", :start_time, :end_time, :selection_start_id, :selection_final_id do
 		serial do |st, et, ssid, sfid|
-			[st.to_i, st.usec, et.to_i, et.usec, ssid, sfid]
+			[*t(st), *t(et), ssid, sfid]
 		end
 		deserial do |st, su, et, eu, ssid, sfid|
-			[Time.at(st.to_i, su.to_i), Time.at(et.to_i, eu.to_i), ssid, sfid]
+			[*t(st, su), *t(et, eu), ssid, sfid]
 		end
 	end
 
@@ -31,10 +31,10 @@ class Session
 	# Feels like metadata I _could_ use, so I may as well capture
 	event :ClearSync, :on_clear_sync, "CS", :at_time do
 		serial do |at|
-			[at.to_i, at.usec]
+			t(at)
 		end
 		deserial do |at, au|
-			[Time.at(at.to_i, au.to_i)]
+			t(at, au)
 		end
 	end
 

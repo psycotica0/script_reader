@@ -12,6 +12,17 @@ class Session
 				@deserial_proc = ->(*args) { args }
 			end
 
+			# This is a convenient but dirty hack
+			# If I give it one argument it does the thing serializing needs, and if I
+			# give it two it does the thing deserializing would need
+			def t(t_or_s, usec_s=nil)
+				if usec_s
+					[Time.at(t_or_s.to_i, usec_s.to_i)]
+				else
+					[t_or_s.to_i, t_or_s.usec]
+				end
+			end
+
 			def serial(&block)
 				@serial_proc = block
 			end
