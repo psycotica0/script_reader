@@ -7,10 +7,6 @@ class Output
 		@play_queue = []
 	end
 
-	def apply_offset(time, offset_ms)
-		(time + (offset_ms / 1000.0)).strftime("%H:%M:%S.%L")
-	end
-
 	def process_takes(takes)
 		return unless @audio_filename && File.readable?(@audio_filename)
 
@@ -20,13 +16,13 @@ class Output
 			segment_files = []
 
 			takes.each_with_index do |take, index|
-				start_time = apply_offset(take.start_time, @global_offset_ms)
-				end_time = apply_offset(take.end_time, @global_offset_ms)
+				start_pos = take.start_pos + (@global_offset_ms / 1000.0)
+				end_pos = take.end_pos + (@global_offset_ms / 1000.0)
 				segment_file = "#{temp_dir}/segment_#{index}.wav"
 				segment_files << segment_file
 
 				# Run sox to trim the segment
-				`sox -q #{@audio_filename} #{segment_file} trim #{start_time} =#{end_time}`
+				`sox -q -V0 #{@audio_filename} #{segment_file} trim #{start_pos.to_s(3)} =#{end_pos.to_s(3)}`
 			end
 
 			# Concatenate all segments into the final output file
