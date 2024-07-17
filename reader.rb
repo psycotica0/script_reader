@@ -233,6 +233,8 @@ class Application
 					end
 				when "p"
 					@output.play_takes([@take_display.current_take].compact)
+				when "P"
+					@output.play_takes(ChoiceExport.of(@selection, @take_manager).takes)
 				when "f"
 					r = PlaybackInputForm.new(Window.new(1, cols / 2, 0, 0), @output.audio_filename).run
 					@session << Session::PlaybackFile.new(r) if r

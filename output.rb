@@ -4,6 +4,7 @@ class Output
 	def initialize
 		@output_filename = "output.wav"
 		@global_offset_ms = 0
+		@play_queue = []
 	end
 
 	def apply_offset(time, offset_ms)
@@ -39,23 +40,32 @@ class Output
 
 	def update_state
 		return unless @playing_pid
-
-		@playing_pid = nil if Process.wait(@playing_pid, Process::WNOHANG)
+		if Process.wait(@playing_pid, Process::WNOHANG)
+			@playing_pid = nil
+			play_next unless @play_queue.empty?
+		end
 	end
 
 	def play_takes(takes)
 		return unless @audio_filename && File.readable?(@audio_filename)
 
 		stop_playing(true)
+		@play_queue = takes
+		play_next
+	end
 
-		takes.each do |take|
-			start_pos = take.start_pos + (@global_offset_ms / 1000.0)
-			end_pos = take.end_pos + (@global_offset_ms / 1000.0)
-			@playing_pid = Process.spawn("play", "-V0", "-q", @audio_filename, "trim", start_pos.to_s(3), "=#{end_pos.to_s(3)}")
-		end
+	def play_next
+		return if @playing_pid
+		take = @play_queue.shift
+		return unless take
+
+		start_pos = take.start_pos + (@global_offset_ms / 1000.0)
+		end_pos = take.end_pos + (@global_offset_ms / 1000.0)
+		@playing_pid = Process.spawn("play", "-V0", "-q", @audio_filename, "trim", start_pos.to_s(3), "=#{end_pos.to_s(3)}")
 	end
 
 	def stop_playing(blocking=false)
+		@play_queue = []
 		return unless @playing_pid
 
 		Process.kill("TERM", @playing_pid)
