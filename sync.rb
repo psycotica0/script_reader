@@ -24,6 +24,10 @@ class Duration
 		@n
 	end
 
+	def to_f
+		@n
+	end
+
 	# Shifts the hh:mm:ss display
 	def shiftl!(new_digit = 0)
 		# First we deconstruct into ab:cd:ef

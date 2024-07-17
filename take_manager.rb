@@ -18,6 +18,11 @@ class Take
 		@end_time = end_time
 	end
 
+	def <=>(other)
+		rating = { TRSH => 0, POOR => 1, nil => 2, OKAY => 3, GOOD => 4}
+		rating[status] <=> rating[other.status]
+	end
+
 	def start_pos
 		@sync.offset_to(@start_time) if @sync
 	end

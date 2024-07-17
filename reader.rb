@@ -10,6 +10,7 @@ require_relative 'take_info_display'
 require_relative 'debug_display'
 require_relative 'sync_display'
 require_relative 'session'
+require_relative 'export'
 require_relative 'output'
 require_relative 'fine_tune_form'
 require_relative 'playback_file_form'
@@ -224,6 +225,12 @@ class Application
 				when "0"
 					t = @take_display.current_take
 					@session << Session::TakeStatus.new(t.id, Take::TRSH) if t
+				when "w"
+					# There are a few output formats I want, but this is the first I
+					# want to play with. Just a list of all the choicest cuts in order.
+					File.open("labels.txt", "w") do |f|
+						ChoiceExport.of(@p.full_selection, @take_manager).write_label_file(f, @output.global_offset_ms)
+					end
 				when "p"
 					@output.play_takes([@take_display.current_take].compact)
 				when "f"

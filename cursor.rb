@@ -152,6 +152,13 @@ class Cursor
 	def id
 		item.id
 	end
+
+	# Because this is a linked-list, if I allow the default implementation it
+	# crawls the whole stack both ways for each instance and basically ruins
+	# everything
+	def inspect
+		"<Cursor id=#{id}>"
+	end
 end
 
 class Selection
@@ -239,6 +246,8 @@ class Selection
 	end
 
 	def contains?(other)
+		return other.between?(start.id, final.id) if other.is_a? ID
+
 		other.start.id.between?(start.id, final.id) && other.final.id.between?(start.id, final.id)
 	end
 
