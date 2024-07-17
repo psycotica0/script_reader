@@ -12,6 +12,7 @@ require_relative 'sync_display'
 require_relative 'session'
 require_relative 'output'
 require_relative 'fine_tune_form'
+require_relative 'playback_file_form'
 
 if ARGV.length != 1 && ARGV.length != 2
 	puts "You have to give me a file"
@@ -30,6 +31,10 @@ class Application
 		curs_set(0)
 		cbreak
 		noecho
+
+		# The delay a keypad'd app waits before declaring an escape key was hit
+		# I want it short (in ms) so escape feels responsive
+		self.ESCDELAY = 10
 
 		begin
 			@p = Parser.new(File.read(ARGV[0]))
@@ -107,6 +112,10 @@ class Application
 
 			@session.on_fine_tune do |ft|
 				@output.global_offset_ms = ft.offset_ms
+			end
+
+			@session.on_playback_file do |pf|
+				@output.audio_filename = pf.filename
 			end
 
 			@output = Output.new
@@ -217,6 +226,10 @@ class Application
 					@session << Session::TakeStatus.new(t.id, Take::TRSH) if t
 				when "p"
 					@output.play_takes([@take_display.current_take].compact)
+				when "f"
+					r = PlaybackInputForm.new(Window.new(1, cols / 2, 0, 0), @output.audio_filename).run
+					@session << Session::PlaybackFile.new(r) if r
+					full_refresh
 				when "F"
 					t = @take_display.current_take
 					next unless t

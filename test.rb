@@ -25,11 +25,12 @@ begin
 	win.attron(color_pair(1) | A_UNDERLINE) { win << "Hello " }
 	win.attron(color_pair(1) | A_ITALIC) { win << "Hello " }
 	cbreak
+	self.ESCDELAY = 10
 	win.keypad(true)
 	refresh
 	win.refresh
 	self.timeout = 10000
-	$ch = getch
+	$ch = win.getch
 ensure
 	close_screen
 end

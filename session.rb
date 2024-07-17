@@ -44,6 +44,8 @@ class Session
 		end
 	end
 
+	event :PlaybackFile, :on_playback_file, "PF", :filename
+
 	def initialize(file)
 		@file = file
 		@file.sync = true

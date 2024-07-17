@@ -2,7 +2,6 @@ class Output
 	attr_accessor :audio_filename, :output_filename, :global_offset_ms
 
 	def initialize
-		@audio_filename = "real.wav"
 		@output_filename = "output.wav"
 		@global_offset_ms = 0
 	end
@@ -12,7 +11,7 @@ class Output
 	end
 
 	def process_takes(takes)
-		return unless @audio_filename
+		return unless @audio_filename && File.readable?(@audio_filename)
 
 		temp_dir = `mktemp -d`.strip
 
@@ -45,7 +44,7 @@ class Output
 	end
 
 	def play_takes(takes)
-		return unless @audio_filename
+		return unless @audio_filename && File.readable?(@audio_filename)
 
 		stop_playing(true)
 
